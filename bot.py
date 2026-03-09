@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 print("SERVER STARTED")
 
+# API KEYS
 api_key = os.getenv("DELTA_API_KEY")
 api_secret = os.getenv("DELTA_API_SECRET")
 
@@ -20,6 +21,8 @@ exchange = ccxt.delta({
 symbol = "BTC/USDT:USDT"
 
 prices = []
+last_signal = None
+
 
 def ema(data, period):
     k = 2 / (period + 1)
@@ -32,6 +35,8 @@ def ema(data, period):
 
 
 def trading_bot():
+
+    global last_signal
 
     print("TRADING BOT STARTED")
 
@@ -57,11 +62,23 @@ def trading_bot():
                 print("EMA9:", ema9)
                 print("EMA21:", ema21)
 
-                if ema9 > ema21:
+                amount = 0.001
+
+                if ema9 > ema21 and last_signal != "buy":
                     print("BUY SIGNAL")
 
-                if ema9 < ema21:
+                    order = exchange.create_market_buy_order(symbol, amount)
+                    print("BUY ORDER PLACED:", order)
+
+                    last_signal = "buy"
+
+                elif ema9 < ema21 and last_signal != "sell":
                     print("SELL SIGNAL")
+
+                    order = exchange.create_market_sell_order(symbol, amount)
+                    print("SELL ORDER PLACED:", order)
+
+                    last_signal = "sell"
 
         except Exception as e:
             print("ERROR:", e)
