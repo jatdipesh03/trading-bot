@@ -24,24 +24,23 @@ prices = []
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
-
     for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
-
     return ema_value
 
 
 def trading_bot():
 
-    print("=== TRADING BOT STARTED ===")
+    print("TRADING BOT STARTED")
 
     while True:
+
         try:
 
             ticker = exchange.fetch_ticker(symbol)
             price = ticker["last"]
 
-            print("CURRENT PRICE:", price)
+            print("PRICE:", price)
 
             prices.append(price)
 
@@ -73,10 +72,13 @@ def home():
     return "Algo Trading Bot Running"
 
 
+def start_bot():
+    trading_bot()
+
+
 if __name__ == "__main__":
 
-    bot_thread = threading.Thread(target=trading_bot)
-    bot_thread.daemon = True
-    bot_thread.start()
+    t = threading.Thread(target=start_bot)
+    t.start()
 
     app.run(host="0.0.0.0", port=10000)
