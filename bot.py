@@ -6,6 +6,7 @@ from flask import Flask
 app = Flask(__name__)
 
 prices = []
+
 url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
 
@@ -21,23 +22,29 @@ def ema(data, period):
 
 def trading_bot():
     while True:
-        r = requests.get(url)
-        data = r.json()
-        print(data)
+        try:
+            r = requests.get(url)
+            data = r.json()
 
-        price = float(data.get("price", 0))
-        prices.append(price)
+            print("API Response:", data)
 
-        if len(prices) > 50:
-            prices.pop(0)
+            price = float(data.get("price", 0))
 
-        if len(prices) > 21:
-            ema9 = ema(prices[-9:], 9)
-            ema21 = ema(prices[-21:], 21)
+            prices.append(price)
 
-            print("Price:", price)
-            print("EMA9:", ema9)
-            print("EMA21:", ema21)
+            if len(prices) > 50:
+                prices.pop(0)
+
+            if len(prices) > 21:
+                ema9 = ema(prices[-9:], 9)
+                ema21 = ema(prices[-21:], 21)
+
+                print("Price:", price)
+                print("EMA9:", ema9)
+                print("EMA21:", ema21)
+
+        except Exception as e:
+            print("Error:", e)
 
         time.sleep(5)
 
@@ -50,4 +57,3 @@ def home():
 if __name__ == "__main__":
     threading.Thread(target=trading_bot).start()
     app.run(host="0.0.0.0", port=10000)
-
