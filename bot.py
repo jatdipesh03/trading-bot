@@ -25,11 +25,15 @@ def ema(data, period):
 
 while True:
 
-    r = requests.get(url)
-    data = r.json()
-    print(data)
-   price = float(data.get("price", 0))
+   r = requests.get(url)
+data = r.json()
+print(data)
 
+if "price" in data:
+    price = float(data["price"])
+else:
+    time.sleep(5)
+    continue
     prices.append(price)
 
     if len(prices) > 50:
@@ -71,5 +75,6 @@ while True:
 
 
     time.sleep(5)
+
 
 
