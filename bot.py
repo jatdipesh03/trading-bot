@@ -27,8 +27,8 @@ while True:
 
     r = requests.get(url)
     data = r.json()
-
-    price = float(data["price"])
+    print(data)
+   price = float(data.get("price", 0))
 
     prices.append(price)
 
@@ -71,4 +71,5 @@ while True:
 
 
     time.sleep(5)
+
 
