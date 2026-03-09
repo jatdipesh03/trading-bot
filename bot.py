@@ -17,15 +17,17 @@ exchange = ccxt.delta({
     "enableRateLimit": True
 })
 
-symbol = "BTC/USDT"
+symbol = "BTC/USDT:USDT"
 
 prices = []
 
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
+
     for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
+
     return ema_value
 
 
