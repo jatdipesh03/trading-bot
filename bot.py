@@ -22,19 +22,17 @@ prices = []
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
-
     for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
-
     return ema_value
 
 
 def trading_bot():
 
+    print("=== TRADING BOT STARTED ===")
+
     while True:
-
         try:
-
             ticker = exchange.fetch_ticker(symbol)
             price = ticker["last"]
 
@@ -59,7 +57,7 @@ def trading_bot():
                     print("SELL SIGNAL")
 
         except Exception as e:
-            print("Error:", e)
+            print("ERROR:", e)
 
         time.sleep(10)
 
@@ -70,5 +68,9 @@ def home():
 
 
 if __name__ == "__main__":
-    threading.Thread(target=trading_bot).start()
+
+    bot_thread = threading.Thread(target=trading_bot)
+    bot_thread.daemon = True
+    bot_thread.start()
+
     app.run(host="0.0.0.0", port=10000)
