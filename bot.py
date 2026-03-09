@@ -1,41 +1,49 @@
 import requests
 import time
+from flask import Flask
+
+app = Flask(__name__)
 
 prices = []
-
 url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+
 
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
-
     for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
-
     return ema_value
 
 
-while True:
+def run_bot():
+    while True:
+        r = requests.get(url)
+        data = r.json()
 
-    r = requests.get(url)
-    data = r.json()
+        price = float(data["price"])
+        prices.append(price)
 
-    print(data)
+        if len(prices) > 50:
+            prices.pop(0)
 
-    price = float(data["price"])
+        if len(prices) > 21:
+            ema9 = ema(prices[-9:], 9)
+            ema21 = ema(prices[-21:], 21)
 
-    prices.append(price)
+            print("Price:", price)
+            print("EMA9:", ema9)
+            print("EMA21:", ema21)
 
-    if len(prices) > 50:
-        prices.pop(0)
+        time.sleep(5)
 
-    if len(prices) > 21:
 
-        ema9 = ema(prices[-9:], 9)
-        ema21 = ema(prices[-21:], 21)
+@app.route("/")
+def home():
+    return "Trading Bot Running"
 
-        print("Price:", price)
-        print("EMA9:", ema9)
-        print("EMA21:", ema21)
 
-    time.sleep(5)
+if __name__ == "__main__":
+    import threading
+    threading.Thread(target=run_bot).start()
+    app.run(host="0.0.0.0", port=10000)
