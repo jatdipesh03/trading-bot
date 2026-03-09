@@ -5,7 +5,6 @@ prices = []
 
 url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
-
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
@@ -17,6 +16,7 @@ def ema(data, period):
 
 
 while True:
+
     r = requests.get(url)
     data = r.json()
 
@@ -30,6 +30,7 @@ while True:
         prices.pop(0)
 
     if len(prices) > 21:
+
         ema9 = ema(prices[-9:], 9)
         ema21 = ema(prices[-21:], 21)
 
