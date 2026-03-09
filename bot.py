@@ -6,6 +6,8 @@ from flask import Flask
 
 app = Flask(__name__)
 
+print("SERVER STARTED")
+
 api_key = os.getenv("DELTA_API_KEY")
 api_secret = os.getenv("DELTA_API_SECRET")
 
@@ -22,8 +24,10 @@ prices = []
 def ema(data, period):
     k = 2 / (period + 1)
     ema_value = sum(data[:period]) / period
+
     for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
+
     return ema_value
 
 
@@ -33,8 +37,11 @@ def trading_bot():
 
     while True:
         try:
+
             ticker = exchange.fetch_ticker(symbol)
             price = ticker["last"]
+
+            print("CURRENT PRICE:", price)
 
             prices.append(price)
 
@@ -46,7 +53,6 @@ def trading_bot():
                 ema9 = ema(prices[-9:], 9)
                 ema21 = ema(prices[-21:], 21)
 
-                print("Price:", price)
                 print("EMA9:", ema9)
                 print("EMA21:", ema21)
 
