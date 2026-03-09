@@ -1,6 +1,5 @@
 import requests
 import time
-import csv
 
 balance = 10000
 position = None
@@ -13,11 +12,12 @@ prices = []
 
 url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 
+
 def ema(data, period):
     k = 2 / (period + 1)
-    ema_value = data[0]
+    ema_value = sum(data[:period]) / period
 
-    for price in data:
+    for price in data[period:]:
         ema_value = price * k + ema_value * (1 - k)
 
     return ema_value
@@ -25,15 +25,17 @@ def ema(data, period):
 
 while True:
 
-   r = requests.get(url)
-data = r.json()
-print(data)
+    r = requests.get(url)
+    data = r.json()
 
-if "price" in data:
+    print(data)
+
+    if "price" not in data:
+        time.sleep(5)
+        continue
+
     price = float(data["price"])
-else:
-    time.sleep(5)
-    continue
+
     prices.append(price)
 
     if len(prices) > 50:
@@ -51,30 +53,12 @@ else:
         if ema9 > ema21 and position is None:
             position = "BUY"
             entry_price = price
-            print("DEMO BUY at", price)
+            print("BUY at", price)
 
-        if position == "BUY":
-
+        elif ema9 < ema21 and position == "BUY":
             profit = price - entry_price
-
-            if profit >= take_profit:
-                balance += profit
-                print("TAKE PROFIT HIT")
-                print("Profit:", profit)
-                print("Balance:", balance)
-                position = None
-
-            elif profit <= -stop_loss:
-                balance += profit
-                print("STOP LOSS HIT")
-                print("Loss:", profit)
-                print("Balance:", balance)
-                position = None
-
-        print("----------------------")
-
+            balance += profit
+            position = None
+            print("SELL at", price, "Profit:", profit)
 
     time.sleep(5)
-
-
-
