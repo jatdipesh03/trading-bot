@@ -1,14 +1,23 @@
-import requests
+import ccxt
+import os
 import time
 import threading
 from flask import Flask
 
 app = Flask(__name__)
 
+api_key = os.getenv("DELTA_API_KEY")
+api_secret = os.getenv("DELTA_API_SECRET")
+
+exchange = ccxt.delta({
+    "apiKey": api_key,
+    "secret": api_secret,
+    "enableRateLimit": True
+})
+
+symbol = "BTC/USDT"
+
 prices = []
-
-url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
-
 
 def ema(data, period):
     k = 2 / (period + 1)
@@ -21,14 +30,13 @@ def ema(data, period):
 
 
 def trading_bot():
+
     while True:
+
         try:
-            r = requests.get(url)
-            data = r.json()
 
-            print("API Response:", data)
-
-            price = float(data.get("price", 0))
+            ticker = exchange.fetch_ticker(symbol)
+            price = ticker["last"]
 
             prices.append(price)
 
@@ -36,6 +44,7 @@ def trading_bot():
                 prices.pop(0)
 
             if len(prices) > 21:
+
                 ema9 = ema(prices[-9:], 9)
                 ema21 = ema(prices[-21:], 21)
 
@@ -43,15 +52,21 @@ def trading_bot():
                 print("EMA9:", ema9)
                 print("EMA21:", ema21)
 
+                if ema9 > ema21:
+                    print("BUY SIGNAL")
+
+                if ema9 < ema21:
+                    print("SELL SIGNAL")
+
         except Exception as e:
             print("Error:", e)
 
-        time.sleep(5)
+        time.sleep(10)
 
 
 @app.route("/")
 def home():
-    return "Trading Bot Running"
+    return "Algo Trading Bot Running"
 
 
 if __name__ == "__main__":
