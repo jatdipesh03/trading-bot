@@ -23,8 +23,9 @@ def trading_bot():
     while True:
         r = requests.get(url)
         data = r.json()
+        print(data)
 
-        price = float(data["price"])
+        price = float(data.get("price", 0))
         prices.append(price)
 
         if len(prices) > 50:
@@ -49,3 +50,4 @@ def home():
 if __name__ == "__main__":
     threading.Thread(target=trading_bot).start()
     app.run(host="0.0.0.0", port=10000)
+
