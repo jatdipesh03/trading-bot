@@ -22,10 +22,6 @@ while True:
 
     print(data)
 
-    if "price" not in data:
-        time.sleep(5)
-        continue
-
     price = float(data["price"])
 
     prices.append(price)
