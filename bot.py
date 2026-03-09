@@ -11,13 +11,13 @@ print("SERVER STARTED")
 api_key = os.getenv("DELTA_API_KEY")
 api_secret = os.getenv("DELTA_API_SECRET")
 
-exchange = ccxt.delta({
+exchange = ccxt.deltaexchange({
     "apiKey": api_key,
     "secret": api_secret,
     "enableRateLimit": True
 })
 
-symbol = "BTC/USDT:USDT"
+symbol = "BTC/USDT"
 
 prices = []
 last_signal = None
@@ -86,7 +86,7 @@ def trading_bot():
 
         except Exception as e:
 
-            print("ERROR:", e)
+            print("BOT ERROR:", e)
 
         time.sleep(10)
 
@@ -99,7 +99,6 @@ def home():
 if __name__ == "__main__":
 
     bot_thread = threading.Thread(target=trading_bot)
-    bot_thread.daemon = True
     bot_thread.start()
 
     app.run(host="0.0.0.0", port=10000)
